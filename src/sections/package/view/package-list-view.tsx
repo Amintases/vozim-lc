@@ -1,16 +1,16 @@
-import isEqual from 'lodash/isEqual';
 import { useState, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
+import { alpha, useTheme } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
 
 import { paths } from 'src/routes/paths';
@@ -19,7 +19,9 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
+import { fTimestamp } from 'src/utils/format-time';
+
+import { INVOICE_SERVICE_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -38,50 +40,60 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
+import { IInvoiceTableFilters, IInvoiceTableFilterValue } from 'src/types/invoice';
 
-import UserTableRow from '../user-table-row';
-import UserTableToolbar from '../user-table-toolbar';
-import UserTableFiltersResult from '../user-table-filters-result';
+import { IPackage } from "../../../types/package";
+import InvoiceTableRow from '../invoice-table-row';
+import { _listPackages } from "../../../_mock/_package";
+import InvoiceTableToolbar from '../invoice-table-toolbar';
+import InvoiceTableFiltersResult from '../invoice-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
-
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone Number', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+  {id: 'description', label: 'Описание'},
+  {id: 'id', label: 'Номер'},
+  {id: 'date', label: 'Дата доставки'},
+  {id: 'direction', label: 'Направление'},
+  {id: 'status', label: 'Статус'},
+  {id: ''},
 ];
 
-const defaultFilters: IUserTableFilters = {
+const defaultFilters: IInvoiceTableFilters = {
   name: '',
-  role: [],
+  service: [],
   status: 'all',
+  startDate: null,
+  endDate: null,
 };
 
 // ----------------------------------------------------------------------
 
-export default function PackageListView() {
-  const table = useTable();
+export default function InvoiceListView() {
+  const theme = useTheme();
 
   const settings = useSettingsContext();
 
   const router = useRouter();
 
+  const table = useTable({defaultOrderBy: 'createDate'});
+
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_userList);
+  const [tableData, setTableData] = useState(_listPackages);
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  const dateError =
+    filters.startDate && filters.endDate
+      ? filters.startDate.getTime() > filters.endDate.getTime()
+      : false;
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters,
+    dateError,
   });
 
   const dataInPage = dataFiltered.slice(
@@ -89,14 +101,43 @@ export default function PackageListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
+  const denseHeight = table.dense ? 56 : 76;
 
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset =
+    !!filters.name ||
+    !!filters.service.length ||
+    filters.status !== 'all' ||
+    (!!filters.startDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
+  const getInvoiceLength = (status: string) =>
+    tableData.filter((item) => item.status === status).length;
+
+  const TABS = [
+    {value: 'all', label: 'Все', color: 'default', count: tableData.length},
+    {
+      value: 'paid',
+      label: 'Ожидают подтавреждения',
+      color: 'success',
+      count: getInvoiceLength('paid'),
+    },
+    {
+      value: 'pending',
+      label: 'Активные',
+      color: 'warning',
+      count: getInvoiceLength('pending'),
+    },
+    {
+      value: 'overdue',
+      label: 'Выполненные',
+      color: 'error',
+      count: getInvoiceLength('overdue'),
+    },
+  ] as const;
+
   const handleFilters = useCallback(
-    (name: string, value: IUserTableFilterValue) => {
+    (name: string, value: IInvoiceTableFilterValue) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -129,7 +170,14 @@ export default function PackageListView() {
 
   const handleEditRow = useCallback(
     (id: string) => {
-      router.push(paths.dashboard.user.edit(id));
+      router.push(paths.dashboard.invoice.edit(id));
+    },
+    [router]
+  );
+
+  const handleViewRow = useCallback(
+    (id: string) => {
+      router.push(paths.dashboard.invoice.details(id));
     },
     [router]
   );
@@ -149,24 +197,36 @@ export default function PackageListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Посылки и грузы"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
-            { name: 'List' },
+            {
+              name: 'Главная',
+              href: paths.dashboard.root,
+            },
+            {
+              name: 'Посылки и грузы',
+            }
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href={paths.dashboard.invoice.new}
               variant="contained"
+              color="primary"
+              sx={{color: 'white'}}
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New User
+              Новая заявка
             </Button>
           }
           sx={{
-            mb: { xs: 3, md: 5 },
+            mb: {xs: 3, md: 5},
+          }}
+        />
+
+        <Card
+          sx={{
+            mb: {xs: 3, md: 5},
           }}
         />
 
@@ -176,63 +236,50 @@ export default function PackageListView() {
             onChange={handleFilterStatus}
             sx={{
               px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+              boxShadow: `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
             }}
           >
-            {STATUS_OPTIONS.map((tab) => (
+            {TABS.map((tab) => (
               <Tab
                 key={tab.value}
-                iconPosition="end"
                 value={tab.value}
                 label={tab.label}
+                iconPosition="end"
                 icon={
                   <Label
                     variant={
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
-                    color={
-                      (tab.value === 'active' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
-                      'default'
-                    }
+                    color={tab.color}
                   >
-                    {tab.value === 'all' && _userList.length}
-                    {tab.value === 'active' &&
-                      _userList.filter((user) => user.status === 'active').length}
-
-                    {tab.value === 'pending' &&
-                      _userList.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'banned' &&
-                      _userList.filter((user) => user.status === 'banned').length}
-                    {tab.value === 'rejected' &&
-                      _userList.filter((user) => user.status === 'rejected').length}
+                    {tab.count}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <UserTableToolbar
+          <InvoiceTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //
-            roleOptions={_roles}
+            dateError={dateError}
+            serviceOptions={INVOICE_SERVICE_OPTIONS.map((option) => option.name)}
           />
 
           {canReset && (
-            <UserTableFiltersResult
+            <InvoiceTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
               onResetFilters={handleResetFilters}
               //
               results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
+              sx={{p: 2.5, pt: 0}}
             />
           )}
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableContainer sx={{position: 'relative', overflow: 'unset'}}>
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
@@ -244,29 +291,41 @@ export default function PackageListView() {
                 )
               }
               action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
+                <Stack direction="row">
+                  <Tooltip title="Sent">
+                    <IconButton color="primary">
+                      <Iconify icon="iconamoon:send-fill" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Download">
+                    <IconButton color="primary">
+                      <Iconify icon="eva:download-outline" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Print">
+                    <IconButton color="primary">
+                      <Iconify icon="solar:printer-minimalistic-bold" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Delete">
+                    <IconButton color="primary" onClick={confirm.onTrue}>
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               }
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{minWidth: 800}}>
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
@@ -276,13 +335,13 @@ export default function PackageListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <UserTableRow
+                      <InvoiceTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onViewRow={() => handleViewRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
                       />
                     ))}
 
@@ -339,15 +398,17 @@ export default function PackageListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({
-  inputData,
-  comparator,
-  filters,
-}: {
-  inputData: IUserItem[];
+                       inputData,
+                       comparator,
+                       filters,
+                       dateError,
+                     }: {
+  inputData: IPackage[];
   comparator: (a: any, b: any) => number;
-  filters: IUserTableFilters;
+  filters: IInvoiceTableFilters;
+  dateError: boolean;
 }) {
-  const { name, status, role } = filters;
+  const {name, status, startDate, endDate} = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -361,16 +422,29 @@ function applyFilter({
 
   if (name) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (invoice) =>
+        invoice.invoiceNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
+    inputData = inputData.filter((invoice) => invoice.status === status);
   }
 
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
+  // if (service.length) {
+  //   inputData = inputData.filter((invoice) =>
+  //     invoice.items.some((filterItem) => service.includes(filterItem.service))
+  //   );
+  // }
+
+  if (!dateError) {
+    if (startDate && endDate) {
+      inputData = inputData.filter(
+        (invoice) =>
+          fTimestamp(invoice.date) >= fTimestamp(startDate) &&
+          fTimestamp(invoice.date) <= fTimestamp(endDate)
+      );
+    }
   }
 
   return inputData;

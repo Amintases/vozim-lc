@@ -9,27 +9,30 @@ import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
-import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
+import { IInvoiceTableFilters, IInvoiceTableFilterValue } from 'src/types/invoice';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  filters: IUserTableFilters;
-  onFilters: (name: string, value: IUserTableFilterValue) => void;
+  filters: IInvoiceTableFilters;
+  onFilters: (name: string, value: IInvoiceTableFilterValue) => void;
   //
-  roleOptions: string[];
+  dateError: boolean;
+  serviceOptions: string[];
 };
 
-export default function UserTableToolbar({
+export default function InvoiceTableToolbar({
   filters,
   onFilters,
   //
-  roleOptions,
+  dateError,
+  serviceOptions,
 }: Props) {
   const popover = usePopover();
 
@@ -40,12 +43,26 @@ export default function UserTableToolbar({
     [onFilters]
   );
 
-  const handleFilterRole = useCallback(
+  const handleFilterService = useCallback(
     (event: SelectChangeEvent<string[]>) => {
       onFilters(
-        'role',
+        'service',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
+    },
+    [onFilters]
+  );
+
+  const handleFilterStartDate = useCallback(
+    (newValue: Date | null) => {
+      onFilters('startDate', newValue);
+    },
+    [onFilters]
+  );
+
+  const handleFilterEndDate = useCallback(
+    (newValue: Date | null) => {
+      onFilters('endDate', newValue);
     },
     [onFilters]
   );
@@ -67,38 +84,59 @@ export default function UserTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 200 },
+            width: { xs: 1, md: 180 },
           }}
         >
-          <InputLabel>Role</InputLabel>
+          <InputLabel>Service</InputLabel>
 
           <Select
             multiple
-            value={filters.role}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Role" />}
+            value={filters.service}
+            onChange={handleFilterService}
+            input={<OutlinedInput label="Service" />}
             renderValue={(selected) => selected.map((value) => value).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
+            sx={{ textTransform: 'capitalize' }}
           >
-            {roleOptions.map((option) => (
+            {serviceOptions.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(option)} />
+                <Checkbox disableRipple size="small" checked={filters.service.includes(option)} />
                 {option}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
+        <DatePicker
+          label="Start date"
+          value={filters.startDate}
+          onChange={handleFilterStartDate}
+          slotProps={{ textField: { fullWidth: true } }}
+          sx={{
+            maxWidth: { md: 180 },
+          }}
+        />
+
+        <DatePicker
+          label="End date"
+          value={filters.endDate}
+          onChange={handleFilterEndDate}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              error: dateError,
+            },
+          }}
+          sx={{
+            maxWidth: { md: 180 },
+          }}
+        />
+
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
             value={filters.name}
             onChange={handleFilterName}
-            placeholder="Search..."
+            placeholder="Search customer or invoice number..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
