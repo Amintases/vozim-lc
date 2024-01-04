@@ -8,7 +8,7 @@ const axiosInstance = axios.create({ baseURL: HOST_API });
 
 axiosInstance.interceptors.response.use(
   (res) => res,
-  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
+  (error) => Promise.reject((error.response && error.response.data) || 'Что-то пошло нет так')
 );
 
 export default axiosInstance;
@@ -30,24 +30,18 @@ export const endpoints = {
   kanban: '/api/kanban',
   calendar: '/api/calendar',
   auth: {
-    me: '/api/auth/me',
-    login: '/api/auth/login',
-    register: '/api/auth/register',
+    me:  `${HOST_API}/api/v1/client/user`,
+    login: `${HOST_API}/api/v1/client/auth/b2c/login`,
+    code:`${HOST_API}/api/v1/client/auth/b2c/smsConfirm`,
+    resendCode:`${HOST_API}/api/v1/client/auth/b2c/smsResend`,
+    register: `${HOST_API}/api/v1/client/auth/b2c/register`,
+  },
+  home:{
+    orders:`/api/v1/client/orders/list`
   },
   mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',
     labels: '/api/mail/labels',
-  },
-  post: {
-    list: '/api/post/list',
-    details: '/api/post/details',
-    latest: '/api/post/latest',
-    search: '/api/post/search',
-  },
-  product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
   },
 };

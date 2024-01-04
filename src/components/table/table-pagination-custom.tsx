@@ -13,16 +13,21 @@ type Props = {
 };
 
 export default function TablePaginationCustom({
-  dense,
-  onChangeDense,
-  rowsPerPageOptions = [5, 10, 25],
-  sx,
-  ...other
-}: Props & TablePaginationProps) {
+                                                dense,
+                                                onChangeDense,
+                                                rowsPerPageOptions = [5, 10, 25],
+                                                sx,
+                                                ...other
+                                              }: Props & TablePaginationProps) {
+
+  const labelDisplayedRows = ({from, to, count}: any) => `${from}–${to} из ${count !== -1 ? count : `больше чем ${to}`}`
+
   return (
-    <Box sx={{ position: 'relative', ...sx }}>
+    <Box sx={{position: 'relative', ...sx}}>
       <TablePagination
         rowsPerPageOptions={rowsPerPageOptions}
+        labelRowsPerPage="Строк на странице"
+        labelDisplayedRows={labelDisplayedRows}
         component="div"
         {...other}
         sx={{
@@ -30,20 +35,20 @@ export default function TablePaginationCustom({
         }}
       />
 
-      {onChangeDense && (
-        <FormControlLabel
-          label="Dense"
-          control={<Switch checked={dense} onChange={onChangeDense} />}
-          sx={{
-            pl: 2,
-            py: 1.5,
-            top: 0,
-            position: {
-              sm: 'absolute',
-            },
-          }}
-        />
-      )}
+    {onChangeDense && (
+      <FormControlLabel
+        label="Уменьшить"
+        control={<Switch checked={dense} onChange={onChangeDense} />}
+        sx={{
+          pl: 2,
+          py: 1.5,
+          top: 0,
+          position: {
+            sm: 'absolute',
+          },
+        }}
+      />
+    )}
     </Box>
   );
 }

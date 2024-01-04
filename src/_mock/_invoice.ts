@@ -5,14 +5,20 @@ import { _addressBooks } from './_others';
 
 // ----------------------------------------------------------------------
 
-export const INVOICE_STATUS_OPTIONS = [
-  { value: 'paid', label: 'Paid' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
-  { value: 'draft', label: 'Draft' },
-];
+// export const INVOICE_STATUS_OPTIONS = [
+//   { value: 'paid', label: 'Paid' },
+//   { value: 'pending', label: 'Pending' },
+//   { value: 'overdue', label: 'Overdue' },
+//   { value: 'draft', label: 'Draft' },
+// ];
 
-export const INVOICE_SERVICE_OPTIONS = [...Array(8)].map((_, index) => ({
+export const INVOICE_SERVICE_OPTIONS = [...Array(12)].map((_, index) => ({
+  id: _mock.id(index),
+  name: _mock.role(index),
+  price: _mock.number.price(index),
+}));
+
+export const INVOICE_STATUS_OPTIONS = [...Array(12)].map((_, index) => ({
   id: _mock.id(index),
   name: _mock.role(index),
   price: _mock.number.price(index),

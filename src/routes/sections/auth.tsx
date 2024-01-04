@@ -3,19 +3,26 @@ import { Outlet } from 'react-router-dom';
 
 import { GuestGuard } from 'src/auth/guard';
 import AuthClassicLayout from 'src/layouts/auth/classic';
+import AuthFullScreenLayout from 'src/layouts/auth/full-screen'
 
 import { SplashScreen } from 'src/components/loading-screen';
 
 // ----------------------------------------------------------------------
 
 // JWT
-const JwtLoginPage = lazy(() => import('src/pages/auth/jwt/login'));
-const JwtRegisterPage = lazy(() => import('src/pages/auth/jwt/register'));
+// const JwtLoginPage = lazy(() => import('src/pages/auth/jwt/login'));
+// const JwtRegisterPage = lazy(() => import('src/pages/auth/jwt/register'));
+
+// DWT
+const B2cLoginPage = lazy(() => import('src/pages/auth/b2c/login'));
+const B2cCodePage = lazy(() => import('src/pages/auth/b2c/code'));
+const B2cRegisterPage = lazy(() => import('src/pages/auth/b2c/register'));
+
 
 // ----------------------------------------------------------------------
 
-const authJwt = {
-  path: 'jwt',
+const authB2c = {
+  path: 'b2c',
   element: (
     <GuestGuard>
       <Suspense fallback={<SplashScreen />}>
@@ -27,25 +34,38 @@ const authJwt = {
     {
       path: 'login',
       element: (
-        <AuthClassicLayout>
-          <JwtLoginPage />
+        <AuthClassicLayout title="Отслеживайте доставку" subTitle="в мобильном приложении">
+          <B2cLoginPage />
         </AuthClassicLayout>
+      ),
+    },
+    {
+      path: 'code',
+      element: (
+        // <AuthClassicLayout title="Отслеживайте доставку" subTitle="в мобильном приложении">
+        //   <B2cCodePage />
+        // </AuthClassicLayout>
+        <AuthFullScreenLayout>
+          <B2cCodePage />
+        </AuthFullScreenLayout>
       ),
     },
     {
       path: 'register',
       element: (
-        <AuthClassicLayout title="Manage the job more effectively with Minimal">
-          <JwtRegisterPage />
-        </AuthClassicLayout>
+        <AuthFullScreenLayout>
+          <B2cRegisterPage />
+        </AuthFullScreenLayout>
       ),
     },
   ],
 };
 
+
 export const authRoutes = [
   {
     path: 'auth',
-    children: [authJwt],
+    children: [authB2c],
+    // children: [authJwt],
   },
 ];

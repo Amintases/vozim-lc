@@ -2,12 +2,12 @@ import { IAddressItem } from './address';
 
 // ----------------------------------------------------------------------
 
-export type IInvoiceTableFilterValue = string | string[] | Date | null;
+export type IInvoiceTableFilterValue = string | string[] | number[] | Date | null;
 
 export type IInvoiceTableFilters = {
   name: string;
-  service: string[];
-  status: string;
+  status: string[];
+  state: string;
   startDate: Date | null;
   endDate: Date | null;
 };

@@ -1,7 +1,7 @@
+import { ru } from "date-fns/locale";
+
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider as MuiLocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-
-import { useLocales } from './use-locales';
 
 // ----------------------------------------------------------------------
 
@@ -10,10 +10,10 @@ type Props = {
 };
 
 export default function LocalizationProvider({ children }: Props) {
-  const { currentLang } = useLocales();
+  // const { currentLang } = useLocales();
 
   return (
-    <MuiLocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={currentLang.adapterLocale}>
+    <MuiLocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
       {children}
     </MuiLocalizationProvider>
   );

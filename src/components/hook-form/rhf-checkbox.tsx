@@ -26,11 +26,8 @@ export function RHFCheckbox({ name, helperText, ...other }: RHFCheckboxProps) {
       control={control}
       render={({ field, fieldState: { error } }) => (
         <div>
-          <FormControlLabel control={<Checkbox {...field} checked={field.value} />} {...other} />
+          <FormControlLabel sx={{color: error && 'red'}} control={<Checkbox {...field} checked={field.value} />} {...other} />
 
-          {(!!error || helperText) && (
-            <FormHelperText error={!!error}>{error ? error?.message : helperText}</FormHelperText>
-          )}
         </div>
       )}
     />

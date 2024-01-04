@@ -57,7 +57,7 @@ export function useNavData() {
         subheader: '',
         items: [
           { title: 'Главная', path: paths.dashboard.root, icon: ICONS.main },
-          { title: 'Посылки и грузы', path: paths.dashboard.packageList, icon: ICONS.package },
+          { title: 'Посылки и грузы', path: paths.dashboard.orders, icon: ICONS.package },
           {
             title: 'Калькулятор',
             path: paths.dashboard.three,

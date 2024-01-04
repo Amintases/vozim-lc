@@ -31,4 +31,6 @@ export const AUTH0_API = {
 export const MAPBOX_API = import.meta.env.VITE_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
+export const PATH_AFTER_LOGIN_PHONE = paths.auth.b2c.code; // as '/dashboard'
+export const PATH_REGISTER = paths.auth.b2c.register; // as '/dashboard'
 export const PATH_AFTER_LOGIN = paths.dashboard.root; // as '/dashboard'

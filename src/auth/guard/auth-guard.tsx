@@ -10,7 +10,7 @@ import { useAuthContext } from '../hooks';
 // ----------------------------------------------------------------------
 
 const loginPaths: Record<string, string> = {
-  jwt: paths.auth.jwt.login,
+  b2c: paths.auth.b2c.login,
 };
 
 // ----------------------------------------------------------------------
@@ -35,16 +35,12 @@ function Container({ children }: Props) {
   const [checked, setChecked] = useState(false);
 
   const check = useCallback(() => {
+
     if (!authenticated) {
-      const searchParams = new URLSearchParams({
-        returnTo: window.location.pathname,
-      }).toString();
 
       const loginPath = loginPaths[method];
 
-      const href = `${loginPath}?${searchParams}`;
-
-      router.replace(href);
+      router.replace(loginPath);
     } else {
       setChecked(true);
     }

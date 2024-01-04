@@ -13,11 +13,12 @@ import Logo from 'src/components/logo';
 
 type Props = {
   title?: string;
+  subTitle?: string;
   image?: string;
   children: React.ReactNode;
 };
 
-export default function AuthClassicLayout({ children, image, title }: Props) {
+export default function AuthClassicLayout({ children, image, title, subTitle }: Props) {
   const theme = useTheme();
 
   const mdUp = useResponsive('up', 'md');
@@ -50,7 +51,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
   const renderSection = (
     <Stack
       flexGrow={1}
-      spacing={10}
+      spacing={{xl:10, xs:5}}
       alignItems="center"
       justifyContent="center"
       sx={{
@@ -63,22 +64,49 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
         }),
       }}
     >
-      <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
-        {title || 'Hi, Welcome back'}
-      </Typography>
+      <Box>
+        <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
+          {title || 'Hi, Welcome back'}
+        </Typography>
+
+        {subTitle && <Typography variant="h6" sx={{ maxWidth: 480, textAlign: 'center' }}>
+          {subTitle}
+        </Typography>}
+      </Box>
+
 
       <Box
         component="img"
         alt="auth"
-        src={image || '/assets/illustrations/illustration_dashboard.png'}
+        src={image || "/assets/illustrations/auth/iphone.svg"}
         sx={{
           maxWidth: {
-            xs: 480,
-            lg: 560,
+            xs: 120,
+            md: 180,
             xl: 720,
           },
         }}
       />
+
+      <Stack direction="row" spacing={2}>
+        <Box
+          component="img"
+          alt="auth"
+          src={image || "/assets/illustrations/auth/google_play.svg"}
+        />
+        <Box
+          component="img"
+          alt="auth"
+          src={image || "/assets/illustrations/auth/app_store.svg"}
+        />
+        <Box
+          component="img"
+          alt="auth"
+          src={image || "/assets/illustrations/auth/app_gallery.svg"}
+        />
+
+      </Stack>
+
     </Stack>
   );
 
@@ -92,9 +120,11 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
     >
       {renderLogo}
 
+      {renderContent}
+
       {mdUp && renderSection}
 
-      {renderContent}
+
     </Stack>
   );
 }

@@ -24,12 +24,11 @@ export type AuthStateType = {
 // ----------------------------------------------------------------------
 
 type CanRemove = {
-  login?: (email: string, password: string) => Promise<void>;
+  loginPhone?: (phone: string | undefined) => Promise<void>;
+  loginCode?: (code: string) => Promise<void>;
+  loginName?: (name: string) => Promise<void>;
   register?: (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string
+    name: string
   ) => Promise<void>;
   //
   loginWithGoogle?: () => Promise<void>;
@@ -102,4 +101,19 @@ export type Auth0ContextType = CanRemove & {
   loginWithPopup: (options?: PopupLoginOptions) => Promise<void>;
   loginWithRedirect: (options?: RedirectLoginOptions) => Promise<void>;
   logout: (options?: LogoutOptions) => Promise<void>;
+};
+
+
+export type B2CContextType = CanRemove & {
+  user: AuthUserType;
+  method: string;
+  loading: boolean;
+  authenticated: boolean;
+  unauthenticated: boolean;
+  loginPhone?: (phone: string | undefined) => Promise<void>;
+  loginCode?: (phone: string) => Promise<void>;
+  loginName?: (phone: string) => Promise<void>;
+  resendCode?: () => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  logout: () => Promise<void>;
 };

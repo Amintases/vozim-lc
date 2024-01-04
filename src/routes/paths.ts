@@ -15,23 +15,18 @@ export const paths = {
   minimalUI: 'https://mui.com/store/items/minimal-dashboard/',
   // AUTH
   auth: {
-    jwt: {
-      login: `${ROOTS.AUTH}/jwt/login`,
-      register: `${ROOTS.AUTH}/jwt/register`,
-    },
+    b2c:{
+      login: `${ROOTS.AUTH}/b2c/login`,
+      code: `${ROOTS.AUTH}/b2c/code`,
+      register: `${ROOTS.AUTH}/b2c/register`,
+    }
   },
   // DASHBOARD
   dashboard: {
     root: ROOTS.HOME,
-    packageList: `${ROOTS.HOME}/package-list`,
-    one: `${ROOTS.HOME}/one`,
-    two: `${ROOTS.HOME}/two`,
+    orders: `${ROOTS.HOME}/orders`,
     three: `${ROOTS.HOME}/three`,
-    group: {
-      root: `${ROOTS.HOME}/group`,
-      five: `${ROOTS.HOME}/group/five`,
-      six: `${ROOTS.HOME}/group/six`,
-    },
+
     user: {
       root: `${ROOTS.DASHBOARD}/user`,
       new: `${ROOTS.DASHBOARD}/user/new`,

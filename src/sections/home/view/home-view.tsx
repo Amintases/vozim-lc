@@ -1,3 +1,5 @@
+// import axios from "axios";
+
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -9,8 +11,8 @@ import { useSettingsContext } from 'src/components/settings';
 // import AppWidget from '../app-widget';
 import HomeWelcome from '../home-welcome';
 import HomeFeatured from '../home-featured';
-import { _appInvoices } from "../../../_mock";
 import HomeNewInvoice from "../home-new-invoice";
+import { useGetOrders } from "../../../api/home";
 import HomeWidgetSummary from "../home-widget-summary";
 
 // import { _appFeatured } from 'src/_mock';
@@ -32,9 +34,9 @@ const _appFeatured = [
 // ----------------------------------------------------------------------
 
 export default function HomeView() {
-  // const {user} = useMockedUser();
 
-  // const theme = useTheme();
+
+  const {orders} = useGetOrders()
 
   const settings = useSettingsContext();
 
@@ -54,7 +56,7 @@ export default function HomeView() {
           />
         </Grid>
         <Grid xs={12} md={4}>
-          <HomeFeatured  list={_appFeatured} />
+          <HomeFeatured list={_appFeatured} />
         </Grid>
 
         <Grid xs={12} md={4}>
@@ -81,21 +83,19 @@ export default function HomeView() {
 
         <Grid xs={12}>
           <HomeNewInvoice
-            title="Поледение отправления"
-            tableData={_appInvoices}
+            title="Последение отправления"
+            tableData={orders}
             tableLabels={[
-              { id: 'description', label: 'Описание' },
-              { id: 'id', label: 'Номер' },
-              { id: 'date', label: 'Дата доставки' },
-              { id: 'direction', label: 'Направление' },
-              { id: 'status', label: 'Статус' },
-              { id: '' },
+              {id: 'description', label: 'Описание'},
+              {id: 'id', label: 'Номер'},
+              {id: 'date', label: 'Дата доставки'},
+              {id: 'direction', label: 'Направление'},
+              {id: 'status', label: 'Статус'},
+              {id: ''},
             ]}
           />
         </Grid>
-
       </Grid>
-
     </Container>
   );
 }

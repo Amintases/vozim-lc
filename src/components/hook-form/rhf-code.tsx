@@ -1,17 +1,22 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { MuiOtpInput, MuiOtpInputProps } from 'mui-one-time-password-input';
 
-import FormHelperText from '@mui/material/FormHelperText';
 
 // ----------------------------------------------------------------------
 
 type RHFCodesProps = MuiOtpInputProps & {
   name: string;
 };
+function matchIsNumeric(value:string) {
+  console.log(value)
+  const isNumber = typeof parseInt(value, 10) === 'number'
+  return isNumber && !Number.isNaN(Number(value))
+}
 
 export default function RHFCode({ name, ...other }: RHFCodesProps) {
   const { control } = useFormContext();
 
+  const validateChar = (value:string, index:number) => matchIsNumeric(value)
   return (
     <Controller
       name={name}
@@ -21,8 +26,9 @@ export default function RHFCode({ name, ...other }: RHFCodesProps) {
           <MuiOtpInput
             {...field}
             autoFocus
+            validateChar={validateChar}
             gap={1.5}
-            length={6}
+            length={4}
             TextFieldsProps={{
               error: !!error,
               placeholder: '-',
@@ -30,11 +36,11 @@ export default function RHFCode({ name, ...other }: RHFCodesProps) {
             {...other}
           />
 
-          {error && (
-            <FormHelperText sx={{ px: 2 }} error>
-              {error.message}
-            </FormHelperText>
-          )}
+          {/* {error && ( */}
+          {/*  <FormHelperText sx={{ px: 2 }} error> */}
+          {/*    {error.message} */}
+          {/*  </FormHelperText> */}
+          {/* )} */}
         </div>
       )}
     />

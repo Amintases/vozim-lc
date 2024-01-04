@@ -5,7 +5,6 @@ import { ASSETS_API } from 'src/config-global';
 import {
   _id,
   _ages,
-  _roles,
   _prices,
   _emails,
   _ratings,
@@ -14,6 +13,7 @@ import {
   _nativeL,
   _percents,
   _booleans,
+  _statuses,
   _sentences,
   _lastNames,
   _fullNames,
@@ -25,8 +25,7 @@ import {
   _firstNames,
   _fullAddress,
   _companyNames,
-  _productNames,
-  _descriptions, _phoneNumbers, _orderDescriptions,
+  _productNames, _descriptions, _phoneNumbers, _orderDescriptions,
 } from './assets';
 
 // ----------------------------------------------------------------------
@@ -35,7 +34,7 @@ export const _mock = {
   id: (index: number) => _id[index],
   time: (index: number) => sub(new Date(), { days: index, hours: index }),
   boolean: (index: number) => _booleans[index],
-  role: (index: number) => _roles[index],
+  role: (index: number) => _statuses[index],
   // Text
   taskNames: (index: number) => _taskNames[index],
   postTitle: (index: number) => _postTitles[index],

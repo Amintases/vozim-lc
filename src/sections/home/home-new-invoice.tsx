@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -13,24 +11,34 @@ import IconButton from '@mui/material/IconButton';
 import Card, { CardProps } from '@mui/material/Card';
 import TableContainer from '@mui/material/TableContainer';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { TableHeadCustom } from 'src/components/table';
+import Label, { LabelColor } from 'src/components/label';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
+import { RowProps } from "../../api/home";
+import { paths } from "../../routes/paths";
+import { ffDate } from "../../utils/format-time";
+import { RouterLink } from "../../routes/components";
+
+
+
+export const STATUS_COLOR:LabelColor[] = [
+  'default',
+  'info', 'info', 'success', 'success',
+  'info', 'info', 'info', 'info',
+  'info',  'default',  'info',  'info',
+   'info',  'info',  'info',  'info',
+   'info',  'info',  'info',  'info',
+   'info',  'success',  'info',  'info',
+   'info',  'info',  'info',  'success',
+   'error',  'info',  'info',  'default',
+   'info',  'info'
+]
+
+
 // ----------------------------------------------------------------------
-
-type RowProps = {
-  description:string,
-  id: string;
-  date: Date;
-  direction:string;
-  status: string;
-  category: string;
-  invoiceNumber: string;
-};
-
 interface Props extends CardProps {
   title?: string;
   subheader?: string;
@@ -55,7 +63,7 @@ export default function HomeNewInvoice({
             <TableHeadCustom headLabel={tableLabels} />
 
             <TableBody>
-              {tableData.map((row) => (
+              {tableData.map((row: RowProps) => (
                 <AppNewInvoiceRow key={row.id} row={row} />
               ))}
             </TableBody>
@@ -67,6 +75,8 @@ export default function HomeNewInvoice({
 
       <Box sx={{p: 2, textAlign: 'right'}}>
         <Button
+          component={RouterLink}
+          href={paths.dashboard.orders}
           size="small"
           color="inherit"
           endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ml: -0.5}} />}
@@ -84,49 +94,45 @@ type AppNewInvoiceRowProps = {
 
 function AppNewInvoiceRow({row}: AppNewInvoiceRowProps) {
   const popover = usePopover();
-
+  console.log(row)
   const handleDownload = () => {
     popover.onClose();
-    console.info('DOWNLOAD', row.id);
+    console.info('DOWNLOAD', row?.id);
   };
 
   const handlePrint = () => {
     popover.onClose();
-    console.info('PRINT', row.id);
+    console.info('PRINT', row?.id);
   };
 
   const handleShare = () => {
     popover.onClose();
-    console.info('SHARE', row.id);
+    console.info('SHARE', row?.id);
   };
 
   const handleDelete = () => {
     popover.onClose();
-    console.info('DELETE', row.id);
+    console.info('DELETE', row?.id);
   };
 
+  // @ts-ignore
   return (
     <>
       <TableRow>
-        <TableCell>{row.description}</TableCell>
-        <TableCell>{row.invoiceNumber}</TableCell>
+        <TableCell>{row.name}</TableCell>
+        <TableCell>{row.id}</TableCell>
 
-        <TableCell>{format(new Date(row.date), 'dd MMM yyyy')}</TableCell>
+        <TableCell>{ffDate(row.receiver.date)}</TableCell>
 
-        <TableCell>{row.direction}</TableCell>
+        <TableCell>{row.route.from.name} - {row.route.to.name}</TableCell>
 
 
         <TableCell>
           <Label
             variant="soft"
-            color={
-              (row.status === 'Курьер выехал' && 'info') ||
-              (row.status === 'progress' && 'warning') ||
-              (row.status === 'out of date' && 'error') ||
-              'success'
-            }
+            color={ STATUS_COLOR[row.status.status] }
           >
-            {row.status}
+            {row.status.text}
           </Label>
         </TableCell>
 

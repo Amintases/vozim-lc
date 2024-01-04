@@ -37,3 +37,7 @@ function result(format: string, key = '.00') {
 
   return isInteger ? format.replace(key, '') : format;
 }
+
+export function fPhone(phone:string|undefined|null){
+  return phone?.split(" ").join("")
+}
